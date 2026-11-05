@@ -43,13 +43,48 @@ ground.receiveShadow = true;
 scene.add(ground);
 
 // ROAD
-const road = new THREE.Mesh(
-    new THREE.PlaneGeometry(8, 200),
-    new THREE.MeshStandardMaterial({ color: 0x8b6842 })
+// HILLY ROAD
+
+const roadGeometry = new THREE.PlaneGeometry(
+    8, 200, 1, 300
 );
+
+const positions = roadGeometry.attributes.position;
+
+function roadHeight(z) {
+    return (
+        Math.sin(z * 0.07) * 1.0 +
+        Math.sin(z * 0.025) * 1.5
+    );
+}
+
+for (let i = 0; i < positions.count; i++) {
+
+    const localY = positions.getY(i);
+
+    const worldZ = -localY - 40;
+
+    positions.setZ(
+        i,
+        roadHeight(worldZ)
+    );
+}
+
+roadGeometry.computeVertexNormals();
+
+const road = new THREE.Mesh(
+    roadGeometry,
+    new THREE.MeshStandardMaterial({
+        color: 0x8b6842,
+        roughness: 1,
+        side: THREE.DoubleSide
+    })
+);
+
 road.rotation.x = -Math.PI / 2;
 road.position.y = 0.02;
 road.position.z = -40;
+
 scene.add(road);
 
 // LANE MARKINGS
@@ -90,36 +125,50 @@ for (let z = -100; z < 15; z += 8) {
 }
 
 // PLAYER
+// REAL HUMAN PLAYER
+
 const player = new THREE.Group();
-
-const body = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.38, 0.42, 1.1, 16),
-    new THREE.MeshStandardMaterial({ color: 0x1565c0 })
-);
-body.position.y = 1.1;
-body.castShadow = true;
-player.add(body);
-
-const head = new THREE.Mesh(
-    new THREE.SphereGeometry(0.35, 20, 20),
-    new THREE.MeshStandardMaterial({ color: 0xffcc99 })
-);
-head.position.y = 1.9;
-player.add(head);
-
-const legs = [];
-for (let x of [-0.18, 0.18]) {
-    const leg = new THREE.Mesh(
-        new THREE.BoxGeometry(0.18, 0.7, 0.2),
-        new THREE.MeshStandardMaterial({ color: 0x222244 })
-    );
-    leg.position.set(x, 0.35, 0);
-    player.add(leg);
-    legs.push(leg);
-}
+scene.add(player);
 
 player.position.set(0, 0, 4);
-scene.add(player);
+
+let mixer = null;
+let runAction = null;
+
+const loader = new GLTFLoader();
+
+loader.load(
+    './assets/player.glb',
+    function (gltf) {
+
+        const human = gltf.scene;
+
+        human.scale.set(1, 1, 1);
+        human.position.set(0, 0, 0);
+
+        human.traverse(function (child) {
+            if (child.isMesh) {
+                child.castShadow = true;
+            }
+        });
+
+        player.add(human);
+
+        if (gltf.animations.length > 0) {
+            mixer = new THREE.AnimationMixer(human);
+
+            runAction = mixer.clipAction(
+                gltf.animations[0]
+            );
+
+            runAction.play();
+        }
+    },
+    undefined,
+    function (error) {
+        console.error("Character loading error:", error);
+    }
+);
 
 // GAME VARIABLES
 let lane = 1;
@@ -338,5 +387,15 @@ window.addEventListener("resize", () => {
 });
 
 animate();
-import { GLTFLoader } from
-'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+// FOLLOW ROAD HEIGHT
+
+const currentRoadHeight = roadHeight(
+    player.position.z
+);
+
+const jumpHeight = player.position.y;
+
+player.position.y = Math.max(
+    0,
+    jumpHeight
+) + currentRoadHeight;

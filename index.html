@@ -1,1 +1,29 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jungle Escape 3D</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-ui">
+        <h1>🌴 JUNGLE ESCAPE</h1>
+        <div class="score">
+            Score: <span id="score">0</span>
+            &nbsp; | &nbsp;
+            🥯 Buns: <span id="buns">0</span>
+        </div>
+        <p id="instructions">← → Move | SPACE Jump</p>
+    </div>
+
+    <div id="game-over">
+        <h1>GAME OVER!</h1>
+        <p>Your score: <span id="final-score">0</span></p>
+        <button id="restart">Play Again</button>
+    </div>
+
+    <script type="module" src="game.js"></script>
+</body>
+</html>

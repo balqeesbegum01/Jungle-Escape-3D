@@ -28,6 +28,10 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+animate();
+
 // LIGHTS
 scene.add(new THREE.HemisphereLight(0xffffff, 0x45602a, 2));
 

@@ -5,14 +5,21 @@
     box-sizing: border-box;
 }
 
-body {
+html, body {
+    width: 100%;
+    height: 100%;
     overflow: hidden;
     font-family: Arial, sans-serif;
-    background: #102b17;
+    background: #87ceeb;
 }
 
 canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     display: block;
+    z-index: 0;
 }
 
 #game-ui {
@@ -53,11 +60,6 @@ canvas {
     padding: 35px;
     border-radius: 15px;
     z-index: 5;
-}
-
-#game-over h1 {
-    color: #ffcc33;
-    margin-bottom: 15px;
 }
 
 #game-over button {
